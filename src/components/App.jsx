@@ -1,27 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 import { nanoid } from 'nanoid';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import css from 'components/app.module.css';
-
-const initialState = [
-  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-];
+import { addContact, removeContact, setFilter } from 'redux/actions';
 
 const App = () => {
-  const [contacts, setContacts] = useState(
-    () => JSON.parse(localStorage.getItem('contacts')) ?? [...initialState]
-  );
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const dispatch = useDispatch();
+  const contacts = useSelector(store=>store.contacts);
+  const filter = useSelector(store=>store.filter)
+  const filteredContacts = useSelector(store=>{
+    const {contacts, filter} = store;
+    if(!filter) {
+      return contacts;
+    }
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  })
 
   const getFormData = data => {
     const newName = data.name;
@@ -30,23 +29,18 @@ const App = () => {
       return Notify.failure(`${newName} is already in contacts`);
     }
     const newObj = { id: nanoid(5), ...data };
-    setContacts(prevContacts => [...prevContacts, newObj]);
-  };
-
-  const getFilteredContacts = () => {
-    const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
+    const action = addContact(newObj);
+    dispatch(action)
   };
 
   const onDeleteContact = id => {
-    setContacts(prevContacts => prevContacts.filter(item => item.id !== id));
+    const action = removeContact(id)
+    dispatch(action);
   };
 
-  const handleFilterChange = ({ target }) => (setFilter(target.value));
-
-  const filteredContacts = getFilteredContacts();
+  const handleFilterChange = ({ target }) => {
+    dispatch(setFilter(target.value));
+  }
 
   return (
     <div className={css.container}>
