@@ -1,15 +1,24 @@
-import PropTypes from 'prop-types'
-import css from 'components/Filter/filter.module.css'
+import { useSelector, useDispatch } from 'react-redux';
+import { getFilter } from 'redux/selectors';
+import { setFilter } from 'redux/filter-slice';
+import css from 'components/Filter/filter.module.css';
 
-const Filter = ({filter, onChange}) => {
-    return (
-        <input className={css.input} type="text" value={filter} onChange={onChange}/>
-    )
-}
+const Filter = () => {
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const handleFilterChange = ({ target }) => {
+    dispatch(setFilter(target.value));
+  };
+
+  return (
+    <input
+      className={css.input}
+      type="text"
+      value={filter}
+      onChange={handleFilterChange}
+    />
+  );
+};
 
 export default Filter;
-
-Filter.propTypes = {
-    filter: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-}

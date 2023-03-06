@@ -1,9 +1,31 @@
-import PropTypes from 'prop-types';
+import { useSelector, useDispatch } from 'react-redux';
+import { getContacts, getFilter } from 'redux/selectors';
+import { removeContact } from 'redux/contacts-slice';
 import { RxAvatar } from 'react-icons/rx';
 import css from 'components/ListElement/list-element.module.css';
 
-const ListElement = ({ id, name, number, onDeleteContact }) => {
-  return (
+const ListElement = () => {
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const filterContacts = () => {
+    if (!filter) {
+      return contacts;
+    }
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  };
+
+  const filteredContacts = filterContacts();
+
+  const onDeleteContact = id => {
+    dispatch(removeContact(id));
+  };
+
+  const elements = filteredContacts.map(({ id, name, number }) => (
     <li className={css.item}>
       <RxAvatar className={css.icon} />
       <p>
@@ -17,14 +39,9 @@ const ListElement = ({ id, name, number, onDeleteContact }) => {
         Delete
       </button>
     </li>
-  );
+  ));
+
+  return elements;
 };
 
 export default ListElement;
-
-ListElement.propTypes = {
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  number: PropTypes.string.isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
-};

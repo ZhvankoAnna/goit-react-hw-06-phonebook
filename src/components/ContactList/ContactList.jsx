@@ -1,28 +1,12 @@
-import PropTypes from 'prop-types';
 import ListElement from 'components/ListElement/ListElement';
 import css from 'components/ContactList/contact-list.module.css';
 
-const ContactList = ({ arr = [], onDeleteContact }) => {
+const ContactList = () => {
   return (
     <ul className={css.list}>
-      {arr.map(({ id, name, number }) => (
-        <ListElement
-          key={id}
-          id={id}
-          name={name}
-          number={number}
-          onDeleteContact={onDeleteContact}
-        />
-      ))}
+      <ListElement />
     </ul>
   );
 };
 
 export default ContactList;
-
-ContactList.propTypes = {
-  arr: PropTypes.arrayOf(
-    PropTypes.object
-  ),
-  onDeleteContact: PropTypes.func.isRequired,
-};
